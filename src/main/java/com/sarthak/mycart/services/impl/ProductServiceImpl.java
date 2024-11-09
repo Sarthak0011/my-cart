@@ -2,7 +2,7 @@ package com.sarthak.mycart.services.impl;
 
 import com.sarthak.mycart.entities.Category;
 import com.sarthak.mycart.entities.Product;
-import com.sarthak.mycart.exceptions.ProductNotFoundException;
+import com.sarthak.mycart.exceptions.ResourceNotFoundException;
 import com.sarthak.mycart.repositories.CategoryRepository;
 import com.sarthak.mycart.repositories.ProductRepository;
 import com.sarthak.mycart.request.AddProductRequest;
@@ -35,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product getProductById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Product with id %d", id)));
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.findById(id)
                 .ifPresentOrElse(productRepository::delete,
                         () -> {
-                            throw new ProductNotFoundException("Product not found.");
+                            throw new ResourceNotFoundException(String.format("Product with id %d", id));
                         });
     }
 
@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateProduct(request, existingProduct))
                 .map(productRepository :: save)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Product with id %d", productId)));
     }
 
     @Override
