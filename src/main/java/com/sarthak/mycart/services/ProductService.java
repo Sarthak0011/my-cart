@@ -1,15 +1,20 @@
 package com.sarthak.mycart.services;
 
 import com.sarthak.mycart.entities.Product;
+import com.sarthak.mycart.request.AddProductRequest;
+import com.sarthak.mycart.request.UpdateProductRequest;
 
 import java.util.List;
 
 public interface ProductService {
-    Product addProduct(Product product);
+    Product addProduct(AddProductRequest product);
     Product getProductById(Long id);
     void deleteProductById(Long id);
-    void updateProductById(Product product, Long productId);
+    Product updateProductById(UpdateProductRequest product, Long productId);
     List<Product> getAllProducts();
-    List<Product> getProductsByCategory(Long categoryId);
+    List<Product> getProductsByCategory(String categoryName);
     List<Product> getProductsByBrand(String brandName);
+    List<Product> getProductsByCategoryAndBrand(String brandName, String categoryName);
+    List<Product> getProductsByName(String productName);
+    List<Product> getProductsByBrandAndProductName(String brandName, String productName);
 }
