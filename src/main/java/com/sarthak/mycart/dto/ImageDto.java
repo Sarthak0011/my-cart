@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ImageDto {
-    Long imageId;
-    String imageName;
+    Long id;
+    String fileName;
     String downloadUrl;
 }

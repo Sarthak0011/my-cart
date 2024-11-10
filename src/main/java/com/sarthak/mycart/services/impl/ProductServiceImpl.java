@@ -1,13 +1,18 @@
 package com.sarthak.mycart.services.impl;
 
+import com.sarthak.mycart.dto.ImageDto;
+import com.sarthak.mycart.dto.ProductDto;
 import com.sarthak.mycart.entities.Category;
+import com.sarthak.mycart.entities.Image;
 import com.sarthak.mycart.entities.Product;
 import com.sarthak.mycart.exceptions.ResourceNotFoundException;
 import com.sarthak.mycart.repositories.CategoryRepository;
+import com.sarthak.mycart.repositories.ImageRepository;
 import com.sarthak.mycart.repositories.ProductRepository;
 import com.sarthak.mycart.request.AddProductRequest;
 import com.sarthak.mycart.request.UpdateProductRequest;
 import com.sarthak.mycart.services.ProductService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +27,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ImageRepository imageRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public Product addProduct(AddProductRequest request) {
@@ -53,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProductById(UpdateProductRequest request, Long productId) {
         return productRepository.findById(productId)
                 .map(existingProduct -> updateProduct(request, existingProduct))
-                .map(productRepository :: save)
+                .map(productRepository::save)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Product with id %d", productId)));
     }
 
@@ -74,7 +85,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getProductsByCategoryAndBrand(String brandName, String categoryName) {
-        return productRepository.findByCategoryNameAndBrand(brandName, categoryName);
+        return productRepository.findByCategoryNameAndBrand(categoryName, brandName);
     }
 
     @Override
@@ -98,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
-    private Product updateProduct(UpdateProductRequest request, Product existingProduct){
+    private Product updateProduct(UpdateProductRequest request, Product existingProduct) {
         existingProduct.setName(request.getName());
         existingProduct.setBrand(request.getBrand());
         existingProduct.setPrice(request.getPrice());
@@ -108,5 +119,23 @@ public class ProductServiceImpl implements ProductService {
         Category category = categoryRepository.findByName(request.getCategory().getName());
         existingProduct.setCategory(category);
         return existingProduct;
+    }
+
+    @Override
+    public List<ProductDto> getConvertedProducts(List<Product> products){
+        return products.stream()
+                .map(this::convertToDto)
+                .toList();
+    }
+
+    @Override
+    public ProductDto convertToDto(Product product) {
+        ProductDto productDto = modelMapper.map(product, ProductDto.class);
+        List<Image> images = imageRepository.findByProductId(product.getId());
+        List<ImageDto> imageDtos = images.stream()
+                .map(image -> modelMapper.map(image, ImageDto.class))
+                .toList();
+        productDto.setImages(imageDtos);
+        return productDto;
     }
 }

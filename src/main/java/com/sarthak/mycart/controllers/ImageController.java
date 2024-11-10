@@ -7,6 +7,7 @@ import com.sarthak.mycart.response.ApiResponse;
 import com.sarthak.mycart.services.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class ImageController {
     @Autowired
     private ImageService imageService;
 
-    @PostMapping("/upload")
+    @PostMapping("/image/upload")
     public ResponseEntity<ApiResponse> saveImages(@RequestParam List<MultipartFile> files, @RequestParam Long productId) {
         try {
             List<ImageDto> images = imageService.saveImage(files, productId);
@@ -40,7 +41,7 @@ public class ImageController {
     }
 
     @GetMapping("/image/download/{imageId}")
-    public ResponseEntity<ApiResponse> downloadImage(@PathVariable Long imageId) {
+    public ResponseEntity<Resource> downloadImage(@PathVariable Long imageId) {
         try {
             Image image = imageService.getImageById(imageId);
             ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1, (int) image.getImage().length()));
@@ -48,16 +49,16 @@ public class ImageController {
                     .status(OK)
                     .contentType(MediaType.parseMediaType(image.getFileType()))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName() + "\"")
-                    .body(new ApiResponse(true, "Image Downloaded!", resource));
+                    .body(resource);
 
         } catch (ResourceNotFoundException e) {
             return ResponseEntity
                     .status(NOT_FOUND)
-                    .body(new ApiResponse(false, "Download image failed", e.getMessage()));
+                    .body(null);
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse(false, "Download image failed!", e.getMessage()));
+                    .body(null);
         }
     }
 
