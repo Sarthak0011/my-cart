@@ -4,8 +4,8 @@ import com.sarthak.mycart.dto.ImageDto;
 import com.sarthak.mycart.entities.Image;
 import com.sarthak.mycart.exceptions.ResourceNotFoundException;
 import com.sarthak.mycart.response.ApiResponse;
-import com.sarthak.mycart.services.impl.ImageServiceImpl;
-import lombok.RequiredArgsConstructor;
+import com.sarthak.mycart.services.ImageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,12 +18,12 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/images")
 public class ImageController {
 
-    private final ImageServiceImpl imageService;
+    @Autowired
+    private ImageService imageService;
 
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse> saveImages(@RequestParam List<MultipartFile> files, @RequestParam Long productId) {

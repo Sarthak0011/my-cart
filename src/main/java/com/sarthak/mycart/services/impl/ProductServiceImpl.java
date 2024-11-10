@@ -8,18 +8,20 @@ import com.sarthak.mycart.repositories.ProductRepository;
 import com.sarthak.mycart.request.AddProductRequest;
 import com.sarthak.mycart.request.UpdateProductRequest;
 import com.sarthak.mycart.services.ProductService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Override
     public Product addProduct(AddProductRequest request) {
@@ -81,8 +83,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getProductsByBrandAndProductName(String brandName, String productName) {
-        return List.of();
+    public List<Product> getProductsByBrandAndName(String brandName, String productName) {
+        return productRepository.getProductByBrandAndName(brandName, productName);
     }
 
     private Product createProduct(AddProductRequest request, Category category) {
