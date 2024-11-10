@@ -23,7 +23,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product addProduct(AddProductRequest request) {
-        Category category = Optional.ofNullable(categoryRepository.findByCategoryName(request.getCategory().getName()))
+        Category category = Optional.ofNullable(categoryRepository.findByName(request.getCategory().getName()))
                 .orElseGet(() -> {
                     Category newCategory = new Category(request.getCategory().getName());
                     return categoryRepository.save(newCategory);
@@ -67,17 +67,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getProductsByBrand(String brandName) {
-        return productRepository.findByBrandName(brandName);
+        return productRepository.findByBrand(brandName);
     }
 
     @Override
     public List<Product> getProductsByCategoryAndBrand(String brandName, String categoryName) {
-        return productRepository.findByCategoryAndBrand(brandName, categoryName);
+        return productRepository.findByCategoryNameAndBrand(brandName, categoryName);
     }
 
     @Override
     public List<Product> getProductsByName(String productName) {
-        return productRepository.findByProductName(productName);
+        return productRepository.findByName(productName);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
         existingProduct.setInventory(request.getInventory());
         existingProduct.setDescription(request.getDescription());
 
-        Category category = categoryRepository.findByCategoryName(request.getCategory().getName());
+        Category category = categoryRepository.findByName(request.getCategory().getName());
         existingProduct.setCategory(category);
         return existingProduct;
     }
