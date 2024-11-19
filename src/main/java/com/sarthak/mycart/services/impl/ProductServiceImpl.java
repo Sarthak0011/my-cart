@@ -12,6 +12,7 @@ import com.sarthak.mycart.repositories.ProductRepository;
 import com.sarthak.mycart.request.AddProductRequest;
 import com.sarthak.mycart.request.UpdateProductRequest;
 import com.sarthak.mycart.services.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,19 +21,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private ImageRepository imageRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final ImageRepository imageRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public Product addProduct(AddProductRequest request) {

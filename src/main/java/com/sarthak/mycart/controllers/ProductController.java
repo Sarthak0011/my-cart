@@ -8,6 +8,8 @@ import com.sarthak.mycart.request.AddProductRequest;
 import com.sarthak.mycart.request.UpdateProductRequest;
 import com.sarthak.mycart.response.ApiResponse;
 import com.sarthak.mycart.services.ProductService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,32 +21,31 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
+@Slf4j
+@RequiredArgsConstructor
 @RequestMapping("${api.prefix}/products")
 public class ProductController {
-
-    Logger logger = LoggerFactory.getLogger(ProductController.class);
-
-    @Autowired
-    private ProductService productService;
+    
+    private final ProductService productService;
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getProducts() {
         try {
-            logger.info("__________> Fetching all products");
+            log.info("__________> Fetching all products");
             List<Product> products = productService.getAllProducts();
             if (products.isEmpty()) {
-                logger.info("___________> No products are available");
+                log.info("___________> No products are available");
                 return ResponseEntity
                         .status(NOT_FOUND)
                         .body(new ApiResponse(true, "No Products are available.", products));
             }
             List<ProductDto> productDtos = productService.getConvertedProducts(products);
-            logger.info("__________> Products fetched");
+            log.info("__________> Products fetched");
             return ResponseEntity
                     .status(OK)
                     .body(new ApiResponse(true, "Product fetched.", productDtos));
         } catch (Exception e) {
-            logger.error("__________> Error fetching all products:{}", e.getMessage());
+            log.error("__________> Error fetching all products:{}", e.getMessage());
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "Failed to get products", e.getMessage()));
@@ -54,19 +55,20 @@ public class ProductController {
     @GetMapping("/product/{productId}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
         try {
-            logger.info("_________> Fetching product by ID...");
+            log.info("_________> Fetching product by ID...");
             Product product = productService.getProductById(productId);
-            logger.info("__________> Product fetched by ID.");
+            ProductDto productDto = productService.convertToDto(product);
+            log.info("__________> Product fetched by ID.");
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Product found.", product));
+                    .body(new ApiResponse(true, "Product found.", productDto));
         } catch (ResourceNotFoundException e) {
-            logger.error("___________> Product not found: {}", e.getMessage());
+            log.error("___________> Product not found: {}", e.getMessage());
             return ResponseEntity
                     .status(NOT_FOUND)
                     .body(new ApiResponse(false, "Product not found", e.getMessage()));
         } catch (Exception e) {
-            logger.error("____________> Product not found: {}", e.getMessage());
+            log.error("____________> Product not found: {}", e.getMessage());
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "Failed to get product!", e.getMessage()));
@@ -76,14 +78,15 @@ public class ProductController {
     @PostMapping("/product/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest productRequest) {
         try {
-            logger.info("_________> Adding product...");
+            log.info("_________> Adding product...");
             Product product = productService.addProduct(productRequest);
-            logger.info("_________> Product {} added.", product.getId());
+            ProductDto productDto = productService.convertToDto(product);
+            log.info("_________> Product {} added.", product.getId());
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Product added.", product));
+                    .body(new ApiResponse(true, "Product added.", productDto));
         } catch (Exception e) {
-            logger.error("__________> Add product failed: {}", e.getMessage());
+            log.error("__________> Add product failed: {}", e.getMessage());
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "Failed to add product!", e.getMessage()));
@@ -93,19 +96,20 @@ public class ProductController {
     @PutMapping("/product/{productId}/update")
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody UpdateProductRequest updateProductRequest, @PathVariable Long productId) {
         try {
-            logger.info("___________> Updating product with ID: {}", productId);
+            log.info("___________> Updating product with ID: {}", productId);
             Product updatedProduct = productService.updateProductById(updateProductRequest, productId);
-            logger.info("__________> Product with ID: {} updated successfully", productId);
+            ProductDto productDto = productService.convertToDto(updatedProduct);
+            log.info("__________> Product with ID: {} updated successfully", productDto);
             return ResponseEntity
                     .status(OK)
                     .body(new ApiResponse(true, "Product updated.", updatedProduct));
         } catch (ResourceNotFoundException e) {
-            logger.error("__________> Product with ID: {} not found while updating -> {}", productId, e.getMessage());
+            log.error("__________> Product with ID: {} not found while updating -> {}", productId, e.getMessage());
             return ResponseEntity
                     .status(NOT_FOUND)
                     .body(new ApiResponse(false, "Product not updated!", e.getMessage()));
         } catch (Exception e) {
-            logger.error("__________> Failed to update product with ID: {} -> {}", productId, e.getMessage());
+            log.error("__________> Failed to update product with ID: {} -> {}", productId, e.getMessage());
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "Failed to update product!", e.getMessage()));
@@ -139,9 +143,10 @@ public class ProductController {
                         .status(NOT_FOUND)
                         .body(new ApiResponse(false, "Products not fetched!", null));
             }
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Products fetched.", products));
+                    .body(new ApiResponse(true, "Products fetched.", productDtos));
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
@@ -158,9 +163,10 @@ public class ProductController {
                         .status(NOT_FOUND)
                         .body(new ApiResponse(true, "No products available!", null));
             }
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Products fetched.", products));
+                    .body(new ApiResponse(true, "Products fetched.", productDtos));
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
@@ -177,9 +183,10 @@ public class ProductController {
                         .status(NOT_FOUND)
                         .body(new ApiResponse(false, "Products not fetched!", null));
             }
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Products fetched.", products));
+                    .body(new ApiResponse(true, "Products fetched.", productDtos));
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
@@ -196,9 +203,10 @@ public class ProductController {
                         .status(NOT_FOUND)
                         .body(new ApiResponse(false, "Products not fetched!", null));
             }
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Products fetched.", products));
+                    .body(new ApiResponse(true, "Products fetched.", productDtos));
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
@@ -215,14 +223,14 @@ public class ProductController {
                         .status(NOT_FOUND)
                         .body(new ApiResponse(false, "Products not fetched!", null));
             }
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
             return ResponseEntity
                     .status(OK)
-                    .body(new ApiResponse(true, "Products fetched.", products));
+                    .body(new ApiResponse(true, "Products fetched.", productDtos));
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "Failed to fetch products!", e.getMessage()));
         }
     }
-
 }

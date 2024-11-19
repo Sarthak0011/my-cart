@@ -5,6 +5,7 @@ import com.sarthak.mycart.exceptions.AlreadyExistsException;
 import com.sarthak.mycart.exceptions.ResourceNotFoundException;
 import com.sarthak.mycart.response.ApiResponse;
 import com.sarthak.mycart.services.CategoryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,11 @@ import java.util.List;
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("${api.prefix}/categories")
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse> getAllCategories() {

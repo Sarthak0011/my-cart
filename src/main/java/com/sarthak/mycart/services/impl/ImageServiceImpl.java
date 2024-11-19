@@ -7,6 +7,7 @@ import com.sarthak.mycart.exceptions.ResourceNotFoundException;
 import com.sarthak.mycart.repositories.ImageRepository;
 import com.sarthak.mycart.services.ImageService;
 import com.sarthak.mycart.services.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,13 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
 
-    @Autowired
-    private ImageRepository imageRepository;
-
-    @Autowired
-    private ProductService productService;
+    private final ImageRepository imageRepository;
+    private final ProductService productService;
 
     @Override
     public Image getImageById(Long id) {
