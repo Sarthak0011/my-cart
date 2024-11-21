@@ -40,4 +40,9 @@ public class CartServiceImpl implements CartService {
         Cart cart = getCart(cartId);
         return cart.getTotalAmount();
     }
+
+    @Override
+    public Cart getCartByUserId(Long userId) {
+        return cartRepository.findByUserId(userId);
+    }
 }
